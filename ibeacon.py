@@ -35,7 +35,7 @@ class Scanner():
 
 		# start scanning for bluetooth packets in subprocess
 		self.lescan_p = subprocess.Popen(['hcitool', '-i', self.hci, 'lescan', '--duplicates'], stdout=DEVNULL)
-		# start subprocesses in shell to dump and parse raw bluetooth packets		
+		# start hcidump to pipe raw bluetooth packets		
 		logger.debug("Running on Linux...")
 		hcidump_args = ['hcidump', '--raw', '-i', self.hci]
 		self.hcidump_p = subprocess.Popen(hcidump_args, stdout=subprocess.PIPE)
@@ -47,7 +47,7 @@ class Scanner():
 		self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		# bind the socket to the port
 		server_address = (host, port)
-		print('Starting ibeacon server on %s:%s' % (server_address))
+		print('Starting ibeacon server on %s:%s. Press Ctrl+C to exit.' % (server_address))
 		self.s.settimeout(5)
 		self.s.bind(server_address)
 		# listen for incoming connections
@@ -74,9 +74,7 @@ class Scanner():
 		"""
 		Parse ibeacon advertisements from bluetooth packets
 		"""
-		print('Scanning for ibeacons...')
 		packet = ''
-		packets=[]
 		while not self.stop_event.isSet():
 			line = str(self.hcidump_p.stdout.readline(), encoding='utf-8')
 			line = line.replace(' ','').strip('\n')
